@@ -1,4 +1,5 @@
 import 'package:dssstudentfe/pages/UserPages/StudentPage.dart';
+import 'package:dssstudentfe/pages/evaluate_criteria_page.dart';
 import 'package:flutter/material.dart';
 
 class AhpResultPage extends StatelessWidget {
@@ -211,8 +212,14 @@ class AhpResultPage extends StatelessWidget {
                       ),
                       onPressed: (){
 
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context)=>StudentPage()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EvaluateCriteriaPage(
+                              criteriaIndex: 0,
+                            ),
+                          ),
+                        );
                   },
                       child: Text("Chuyển đến danh sách sinh viên",style: TextStyle(color: Colors.white),)),
                 )

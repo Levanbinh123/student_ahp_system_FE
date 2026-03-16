@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:dssstudentfe/Models/AhpModel.dart';
+import 'package:dssstudentfe/Models/ahp_matrix_request.dart';
 import 'package:http/http.dart' as http;
 
 class AhpService {
@@ -21,4 +22,27 @@ class AhpService {
 
     throw Exception(body["message"]);
   }
+  Future<void> calculateAlternative(AhpMatrixRequest request) async {
+
+    final response = await http.post(
+      Uri.parse("$baseUrl/alternative"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(request.toJson()),
+    );
+
+    if(response.statusCode != 200){
+      throw Exception("Error calculating alternative");
+    }
+  }
+  Future<Map<String,dynamic>> getFinalResult() async {
+
+    final response = await http.get(Uri.parse("$baseUrl/final"));
+
+    if(response.statusCode == 200){
+      return jsonDecode(response.body);
+    }
+
+    throw Exception("Error final result");
+  }
+
 }

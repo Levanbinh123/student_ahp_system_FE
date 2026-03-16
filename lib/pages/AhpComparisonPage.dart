@@ -9,6 +9,17 @@ class AhpComparisonPage extends StatefulWidget {
 }
 
 class _AhpComparisonPageState extends State<AhpComparisonPage> {
+  List<List<double>> getMatrix(){
+    double a = _convertScale(selectedValues["Điểm quá trình|Số buổi vắng"]!);
+    double b = _convertScale(selectedValues["Điểm quá trình|Điểm bài tập"]!);
+    double c = _convertScale(selectedValues["Số buổi vắng|Điểm bài tập"]!);
+
+    return [
+      [1, a, b],
+      [1/a, 1, c],
+      [1/b, 1/c, 1]
+    ];
+  }
 
   List<String> criteria = [
     "Điểm quá trình",
@@ -176,7 +187,19 @@ class _AhpComparisonPageState extends State<AhpComparisonPage> {
                 ),
 
                 SizedBox(height: 20),
+                //ma tran theo tieu chi
 
+                Text(
+                  "Ma trận so sánh cặp",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                SizedBox(height: 10),
+
+                buildMatrix(),
                 /// BUTTON
                 SizedBox(
                   width: double.infinity,
@@ -185,39 +208,7 @@ class _AhpComparisonPageState extends State<AhpComparisonPage> {
                       backgroundColor: Colors.blue.shade800,
                       padding: EdgeInsets.symmetric(vertical: 14),
                     ),
-                    onPressed: () async{
-
-                      var vm = context.read<AhpViewModel>();
-
-                      double testAttendance = _convertScale(
-                          selectedValues["Điểm quá trình|Số buổi vắng"]!
-                      );
-
-                      double testStudy = _convertScale(
-                          selectedValues["Điểm quá trình|Điểm bài tập"]!
-                      );
-
-                      double attendanceStudy = _convertScale(
-                          selectedValues["Số buổi vắng|Điểm bài tập"]!
-                      );
-
-                      await vm.calculateAHP(
-                          testAttendance,
-                          testStudy,
-                          attendanceStudy
-                      );
-
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context)=>AhpResultPage(
-                                weights: vm.weights!,
-                                cr: vm.cr!,
-                              )
-                          )
-                      );
-
-                    },
+                    onPressed: caculate,
                     child: Text(
                       "Tính trọng số",
                       style: TextStyle(
@@ -234,6 +225,41 @@ class _AhpComparisonPageState extends State<AhpComparisonPage> {
       ),
     );
   }
+  //tinh toan cac tieu chi de cuat ra ma tran
+  void caculate() async{
+
+  var vm = context.read<AhpViewModel>();
+
+  double testAttendance = _convertScale(
+      selectedValues["Điểm quá trình|Số buổi vắng"]!
+  );
+
+  double testStudy = _convertScale(
+      selectedValues["Điểm quá trình|Điểm bài tập"]!
+  );
+
+  double attendanceStudy = _convertScale(
+      selectedValues["Số buổi vắng|Điểm bài tập"]!
+  );
+
+  await vm.calculateAHP(
+      testAttendance,
+      testStudy,
+      attendanceStudy
+      );
+
+  Navigator.push(
+  context,
+  MaterialPageRoute(
+  builder: (context)=>
+      AhpResultPage(
+  weights: vm.weights!,
+  cr: vm.cr!,
+  )
+  )
+  );
+
+}
   double _convertScale(String value){
 
     if(value.startsWith("1")) return 1;
@@ -243,5 +269,101 @@ class _AhpComparisonPageState extends State<AhpComparisonPage> {
     if(value.startsWith("9")) return 9;
 
     return 1;
+  }
+  Widget buildMatrix() {
+
+    var matrix = getMatrix();
+
+    return Center(
+      child: Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 8,
+            )
+          ],
+        ),
+
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+
+            /// TABLE
+            DataTable(
+
+              headingRowColor:
+              MaterialStateProperty.all(Colors.blue.shade50),
+
+              border: TableBorder.all(
+                color: Colors.grey.shade300,
+              ),
+
+              columns: const [
+
+                DataColumn(
+                    label: Center(child: Text(""))),
+
+                DataColumn(
+                    label: Center(child: Text("C1"))),
+
+                DataColumn(
+                    label: Center(child: Text("C2"))),
+
+                DataColumn(
+                    label: Center(child: Text("C3"))),
+
+              ],
+
+              rows: [
+
+                DataRow(cells: [
+
+                  DataCell(Center(child: Text("C1",
+                      style: TextStyle(fontWeight: FontWeight.bold)))),
+
+                  DataCell(Center(child: Text(matrix[0][0].toStringAsFixed(2)))),
+
+                  DataCell(Center(child: Text(matrix[0][1].toStringAsFixed(2)))),
+
+                  DataCell(Center(child: Text(matrix[0][2].toStringAsFixed(2)))),
+
+                ]),
+
+                DataRow(cells: [
+
+                  DataCell(Center(child: Text("C2",
+                      style: TextStyle(fontWeight: FontWeight.bold)))),
+
+                  DataCell(Center(child: Text(matrix[1][0].toStringAsFixed(2)))),
+
+                  DataCell(Center(child: Text(matrix[1][1].toStringAsFixed(2)))),
+
+                  DataCell(Center(child: Text(matrix[1][2].toStringAsFixed(2)))),
+
+                ]),
+
+                DataRow(cells: [
+
+                  DataCell(Center(child: Text("C3",
+                      style: TextStyle(fontWeight: FontWeight.bold)))),
+
+                  DataCell(Center(child: Text(matrix[2][0].toStringAsFixed(2)))),
+
+                  DataCell(Center(child: Text(matrix[2][1].toStringAsFixed(2)))),
+
+                  DataCell(Center(child: Text(matrix[2][2].toStringAsFixed(2)))),
+
+                ]),
+
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:dssstudentfe/Models/AhpModel.dart';
+import 'package:dssstudentfe/Models/ahp_matrix_request.dart';
 import 'package:dssstudentfe/Services/AhpService.dart';
 import 'package:flutter/material.dart';
 
@@ -44,5 +45,17 @@ class AhpViewModel extends ChangeNotifier {
 
     isLoading = false;
     notifyListeners();
+  }
+  Future<void> calculateAlternative(
+      String criteria,
+      List<List<double>> matrix
+      ) async {
+
+    final request = AhpMatrixRequest(
+        criteriaName: criteria,
+        matrix: matrix
+    );
+
+    await _service.calculateAlternative(request);
   }
 }
