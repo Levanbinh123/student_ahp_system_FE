@@ -1,11 +1,16 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:dssstudentfe/Models/Student.dart';
 import 'package:dssstudentfe/ViewModels/risk_viewmodel.dart';
 import 'package:dssstudentfe/ViewModels/score_viewmodel.dart';
 import 'package:dssstudentfe/ViewModels/student_viewmodel.dart';
 import 'package:dssstudentfe/pages/UserPages/student_edit_page.dart';
 import 'package:dssstudentfe/pages/components/my_drawer.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:html' as html;
 
 class StudentPage extends StatefulWidget {
   @override
@@ -78,20 +83,54 @@ class _StudentPageState extends State<StudentPage> {
 
                       SizedBox(width: 10),
 
-                      ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                        ),
-                        onPressed: () {
-                          showAddStudentDialog(context);
-                        },
-                        icon: Icon(Icons.add, color: Colors.white),
-                        label: Text(
-                          "Thêm sinh viên",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      )
+                      Row(
+                        children: [
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                            ),
+                            onPressed: () {
+                              showAddStudentDialog(context);
+                            },
+                            icon: Icon(Icons.add, color: Colors.white),
+                            label: Text(
+                              "Thêm sinh viên",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
+                              uploadInput.accept = ".xlsx";
+                              uploadInput.click();
 
+                              uploadInput.onChange.listen((e) async {
+                                final files = uploadInput.files;
+                                if (files != null && files.isNotEmpty) {
+                                  final file = files.first;
+                                  final reader = html.FileReader();
+                                  reader.readAsArrayBuffer(file);
+                                  reader.onLoadEnd.listen((e) async {
+                                    final bytes = reader.result as Uint8List;
+                                    try {
+                                      await context.read<StudentViewModel>().importExcelWeb(bytes, file.name);
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text("Import thành công!"))
+                                      );
+                                    } catch (ex) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text("Import thất bại: $ex"))
+                                      );
+                                    }
+                                  });
+                                }
+                              });
+                            },
+                            icon: Icon(Icons.upload_file),
+                            label: Text("Import Excel"),
+                          )
+                        ],
+                      )
                     ],
                   ),
 
@@ -114,9 +153,7 @@ class _StudentPageState extends State<StudentPage> {
                           : SingleChildScrollView(
                         scrollDirection: Axis.vertical,
                         child: DataTable(
-
                           columns: const [
-
                             DataColumn(label: Text("Mã SV")),
                             DataColumn(label: Text("Họ tên")),
                             DataColumn(label: Text("Lớp")),

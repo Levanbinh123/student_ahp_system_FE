@@ -1,7 +1,10 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import '../Models/Student.dart';
 import '../Services/student_service.dart';
-
+import 'package:http/http.dart' as http;
 class StudentViewModel extends ChangeNotifier {
 
   final StudentService _service = StudentService();
@@ -38,4 +41,29 @@ class StudentViewModel extends ChangeNotifier {
     isLoading=false;
     notifyListeners();
   }
+
+  // Upload Excel (Web compatible)
+  Future<void> importExcelWeb(Uint8List bytes, String filename) async {
+    var uri = Uri.parse("http://localhost:5045/api/student/students-excel-json");
+
+    var request = http.MultipartRequest("POST", uri);
+
+    // Thêm file dưới dạng bytes
+    request.files.add(http.MultipartFile.fromBytes(
+      'file',
+      bytes,
+      filename: filename,
+    ));
+
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 200) {
+      // import thành công → load lại danh sách
+      await loadStudents();
+    } else {
+      throw Exception("Import thất bại: ${response.statusCode}");
+    }
+  }
+
 }
