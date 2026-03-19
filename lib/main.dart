@@ -3,6 +3,7 @@ import 'package:dssstudentfe/ViewModels/risk_viewmodel.dart';
 import 'package:dssstudentfe/ViewModels/score_viewmodel.dart';
 import 'package:dssstudentfe/ViewModels/student_viewmodel.dart';
 import 'package:dssstudentfe/pages/AhpCriteriaPage.dart';
+import 'package:dssstudentfe/pages/AhpReportPage.dart';
 import 'package:dssstudentfe/pages/UserPages/StudentPage.dart';
 import 'package:dssstudentfe/pages/dashboard_page.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ void main() {
       ChangeNotifierProvider(
         create: (_) => RiskViewModel(),
       ),
+
     ],
     child: MyApp(),
   ));
@@ -38,10 +40,9 @@ class MyApp extends StatelessWidget {
       initialRoute: "/dashboard",
     routes: {
         "/dashboard":(context)=>DashboardPage(),
-
-      "/students": (context) => StudentPage(),
-
-      "/ahp": (context) => AhpCriteriaPage(),
+         "/students": (context) => StudentPage(),
+        "/ahp": (context) => AhpCriteriaPage(),
+       "/ahp-report":(context)=>AhpReportPage()
     },
       title: 'DSS Cảnh Báo Sớm',
       debugShowCheckedModeBanner: false,

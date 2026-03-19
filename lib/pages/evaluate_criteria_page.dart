@@ -23,9 +23,9 @@ class _EvaluateCriteriaPageState extends State<EvaluateCriteriaPage> {
 
   /// tiêu chí
   List<String> criterias = [
-    "Điểm quá trình",
-    "Số buổi vắng",
-    "Điểm bài tập"
+    "TIÊU CHÍ 1 — HỌC THUẬT",
+    "TIÊU CHÍ 2 — KỶ LUẬT ",
+    "TIÊU CHÍ 3 — NỖ LỰC"
   ];
 
   /// tên backend

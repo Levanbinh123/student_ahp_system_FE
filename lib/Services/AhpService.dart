@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dssstudentfe/Models/AhpModel.dart';
 import 'package:dssstudentfe/Models/ahp_matrix_request.dart';
+import 'package:dssstudentfe/Models/ahp_report.dart';
 import 'package:http/http.dart' as http;
 
 class AhpService {
@@ -44,5 +45,15 @@ class AhpService {
 
     throw Exception("Error final result");
   }
+  Future<AhpReport> getReposrt()async{
+    final response=await http.get(Uri.parse("$baseUrl/report"));
+    if(response.statusCode==200){
+      final data=jsonDecode(response.body);
+      return AhpReport.fromJson(data);
+    }else{
+      throw Exception("Failed to load report");
+    }
+  }
+
 
 }

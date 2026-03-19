@@ -1,12 +1,13 @@
 import 'package:dssstudentfe/Models/AhpModel.dart';
 import 'package:dssstudentfe/Models/ahp_matrix_request.dart';
+import 'package:dssstudentfe/Models/ahp_report.dart';
 import 'package:dssstudentfe/Services/AhpService.dart';
 import 'package:flutter/material.dart';
 
 class AhpViewModel extends ChangeNotifier {
 
   final AhpService _service = AhpService();
-
+  AhpReport? report;
   bool isLoading = false;
 
   Map<String,double>? weights;
@@ -57,5 +58,18 @@ class AhpViewModel extends ChangeNotifier {
     );
 
     await _service.calculateAlternative(request);
+  }
+  Future<void>fetchReport()async{
+    try{
+      isLoading=true;
+      error=null;
+      notifyListeners();
+      report=await _service.getReposrt();
+    }catch(e){
+      error=e.toString();
+    }finally{
+      isLoading=false;
+      notifyListeners();
+    }
   }
 }

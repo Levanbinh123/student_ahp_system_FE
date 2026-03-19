@@ -1,3 +1,4 @@
+import 'package:dssstudentfe/pages/AhpReportPage.dart';
 import 'package:dssstudentfe/pages/UserPages/StudentPage.dart';
 import 'package:flutter/material.dart';
 import '../Services/AhpService.dart';
@@ -124,29 +125,20 @@ class _FinalResultPageState extends State<FinalResultPage> {
               ),
               const SizedBox(height: 50,),
               ElevatedButton(
-
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue.shade800,
+                    backgroundColor: Colors.green,
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15)
                 ),
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_)=>AhpReportPage()));
 
-                onPressed: (){
-
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context)=>StudentPage()
-                      )
-                  );
 
                 },
-
                 child: Text(
-                  "Chuyển đến danh sách sinh viên",
+                  "Lưu & Xem báo cáo AHP",
                   style: TextStyle(color: Colors.white),
                 ),
-
-              )
+              ),
 
             ],
           ),

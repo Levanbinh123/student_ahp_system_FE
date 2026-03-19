@@ -21,18 +21,14 @@ class AhpResultPage extends StatelessWidget {
         backgroundColor: Colors.blue.shade800,
         title: Text("Kết quả tính trọng số",style: TextStyle(color: Colors.white),),),
       backgroundColor: Color(0xfff5f7fb),
-
       body: Center(
         child: Container(
-
           width: 650,
           padding: EdgeInsets.all(20),
-
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 SizedBox(height: 20),
 
                 /// CARD RESULT
@@ -221,7 +217,7 @@ class AhpResultPage extends StatelessWidget {
                           ),
                         );
                   },
-                      child: Text("Chuyển đến danh sách sinh viên",style: TextStyle(color: Colors.white),)),
+                      child: Text("Tính độ ưu tiên của các phương án theo từng tiêu chí. ",style: TextStyle(color: Colors.white),)),
                 )
 
               ],

@@ -163,9 +163,7 @@ class _StudentEditPageState extends State<StudentEditPage> {
                     border: OutlineInputBorder(),
                   ),
                 ),
-          
                 SizedBox(height: 16),
-          
                 /// EMAIL
                 Text("Email"),
                 SizedBox(height: 6),

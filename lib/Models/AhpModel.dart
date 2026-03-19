@@ -36,11 +36,11 @@ class AhpResult {
 
   factory AhpResult.fromJson(Map<String, dynamic> json) {
     return AhpResult(
-      testWeight: json["testWeight"],
-      attendanceWeight: json["attendanceWeight"],
-      studyWeight: json["studyWeight"],
-      consistencyRatio: json["consistencyRatio"],
-      isConsistent: json["isConsistent"],
+        testWeight: json["testWeight"]?.toDouble() ?? 0.0,
+        attendanceWeight: json["attendanceWeight"]?.toDouble() ?? 0.0,
+        studyWeight: json["studyWeight"]?.toDouble() ?? 0.0,
+        consistencyRatio: json["consistencyRatio"]?.toDouble() ?? 0.0,
+        isConsistent: json["isConsistent"] ?? true,
     );
   }
 }

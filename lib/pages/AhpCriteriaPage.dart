@@ -7,15 +7,12 @@ class AhpCriteriaPage extends StatefulWidget {
   @override
   _AhpCriteriaPageState createState() => _AhpCriteriaPageState();
 }
-
 class _AhpCriteriaPageState extends State<AhpCriteriaPage> {
-
   List<String> criteria = [
-    "Điểm quá trình",
-    "Điểm bài tập",
-    "Mức độ tham gia"
+    "Test_Score (Học thuật)",
+    "Attendance (Kỷ luật)",
+    "Study_Hours (Nỗ lực)"
   ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

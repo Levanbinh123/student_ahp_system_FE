@@ -28,12 +28,10 @@ class MyDrawer extends StatelessWidget {
               ),
             ),
           ),
-
           menuItem(context, Icons.dashboard, "Dashboard", "/dashboard"),
-
           menuItem(context, Icons.people, "Sinh viên", "/students"),
-
           menuItem(context, Icons.analytics, "AHP", "/ahp"),
+          menuItem(context, Icons.report, "Báo cáo AHP", "/ahp-report"),
 
         ],
       ),
