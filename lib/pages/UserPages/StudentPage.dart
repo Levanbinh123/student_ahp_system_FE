@@ -1,4 +1,4 @@
-import 'dart:io';
+
 import 'dart:typed_data';
 
 import 'package:dssstudentfe/Models/Student.dart';
@@ -7,7 +7,6 @@ import 'package:dssstudentfe/ViewModels/score_viewmodel.dart';
 import 'package:dssstudentfe/ViewModels/student_viewmodel.dart';
 import 'package:dssstudentfe/pages/UserPages/student_edit_page.dart';
 import 'package:dssstudentfe/pages/components/my_drawer.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:html' as html;
@@ -28,6 +27,7 @@ class _StudentPageState extends State<StudentPage> {
     Future.microtask(() {
       context.read<StudentViewModel>().loadStudents();
       context.read<RiskViewModel>().loadResults();
+      context.read<ScoreViewModel>().loadScores();
     });
   }
 
@@ -128,7 +128,18 @@ class _StudentPageState extends State<StudentPage> {
                             },
                             icon: Icon(Icons.upload_file),
                             label: Text("Import Excel"),
-                          )
+                          ),
+                          const SizedBox(width: 20,),
+                          ElevatedButton(
+
+                            onPressed: context.watch<RiskViewModel>().isLoading?null:()async{
+                              await context.read<RiskViewModel>().calculateAll();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("Đã tính risk cho tất cả học sinh"))
+                              );
+                            },
+                            child: Text("Tính Risk "),
+                          ),
                         ],
                       )
                     ],
@@ -158,9 +169,11 @@ class _StudentPageState extends State<StudentPage> {
                             DataColumn(label: Text("Họ tên")),
                             DataColumn(label: Text("Lớp")),
                             DataColumn(label: Text("Email")),
+                            DataColumn(label: Text("Test")),
+                            DataColumn(label: Text("Attendance")),
+                            DataColumn(label: Text("Study")),
                             DataColumn(label: Text("Mức rủi ro")),
                             DataColumn(label: Text("Thao tác")),
-
                           ],
 
                           rows: displayList.map((s){
@@ -185,6 +198,32 @@ class _StudentPageState extends State<StudentPage> {
                                         : s.email
                                 )),
 
+                                //diem hoc sinh
+                                DataCell(
+                                  Consumer<ScoreViewModel>(
+                                    builder: (context, scoreVm,_){
+                                      final score=scoreVm.getScoreByStudent(s.id!);
+                                      return Text(score?.testScore.toString()??"-");
+                                    },
+                                  )
+                                ),
+                                DataCell(
+                                  Consumer<ScoreViewModel>(
+                                    builder: (context, scoreVm, _) {
+                                      final score = scoreVm.getScoreByStudent(s.id!);
+                                      return Text(score?.attendance.toString() ?? "-");
+                                    },
+                                  ),
+                                ),
+                                DataCell(
+                                  Consumer<ScoreViewModel>(
+                                    builder: (context, scoreVm, _) {
+                                      final score = scoreVm.getScoreByStudent(s.id!);
+                                      return Text(score?.attendance.toString() ?? "-");
+                                    },
+                                  ),
+                                ),
+                                    ////risk
                                 DataCell(
                                   Consumer<RiskViewModel>(
                                     builder: (context, riskVm, child) {
@@ -195,9 +234,9 @@ class _StudentPageState extends State<StudentPage> {
 
                                       Color color = Colors.grey;
 
-                                      if(level == "High") color = Colors.red;
-                                      if(level == "Medium") color = Colors.orange;
-                                      if(level == "Low") color = Colors.green;
+                                      if(level == "High Risk") color = Colors.red;
+                                      if(level == "Medium Risk") color = Colors.orange;
+                                      if(level == "Low Risk") color = Colors.green;
 
                                       return Container(
                                         padding: EdgeInsets.symmetric(horizontal:10, vertical:4),
@@ -265,13 +304,10 @@ class _StudentPageState extends State<StudentPage> {
 
     TextEditingController code =
     TextEditingController(text: student?.studentCode ?? "");
-
     TextEditingController name =
     TextEditingController(text: student?.name ?? "");
-
     TextEditingController className =
     TextEditingController(text: student?.className ?? "");
-
     TextEditingController email =
     TextEditingController(text: student?.email ?? "");
 

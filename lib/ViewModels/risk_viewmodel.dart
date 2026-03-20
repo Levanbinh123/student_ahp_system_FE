@@ -5,9 +5,9 @@ import '../Services/risk_service.dart';
 class RiskViewModel extends ChangeNotifier {
 
   final RiskService _service = RiskService();
-
+  Map<String, dynamic>? summary;
   bool isLoading = false;
-
+  String message = "";
   List<RiskResult> results = [];
 
   List<RiskResult> topRisk = [];
@@ -27,17 +27,37 @@ class RiskViewModel extends ChangeNotifier {
   }
 
   /// tính risk cho tất cả sinh viên
-  Future<void> calculateAllRisk() async {
+  Future<void> calculateAll() async {
+    try {
+      isLoading = true;
+      message = "Đang tính...";
+      notifyListeners();
 
-    isLoading = true;
-    notifyListeners();
+      await _service.calculateAll();
 
-    await _service.calculateAllRisk();
+      await loadResults();
 
-    await loadResults();
-
-    isLoading = false;
-    notifyListeners();
+      message = "Tính xong!";
+    } catch (e) {
+      message = " $e";
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+  Future<void> loadSummary()async{
+    try{
+      isLoading=true;
+      notifyListeners();
+      summary=await _service.getSummary();
+    }
+    catch(e){
+      print("Load summary error:$e");
+    }
+    finally{
+      isLoading=false;
+      notifyListeners();
+    }
   }
 
   /// load danh sách risk

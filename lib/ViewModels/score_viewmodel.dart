@@ -6,8 +6,9 @@ class ScoreViewModel extends ChangeNotifier {
 
   final ScoreService service = ScoreService();
 
+  List<ScoreInput> scores = [];
   bool isLoading = false;
-
+  Map<int, ScoreInput> scoreMap = {};
   Future submitScore(
       int studentId,
       double testScore,
@@ -32,6 +33,31 @@ class ScoreViewModel extends ChangeNotifier {
     isLoading = false;
     notifyListeners();
 
+  }
+  Future<void> loadScores() async {
+    try {
+      isLoading = true;
+      notifyListeners();
+
+      scores = await service.getScores();
+
+      scoreMap = {
+        for (var s in scores) s.studentId: s
+      };
+
+    } catch (e) {
+      print("Load score error: $e");
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // =============================
+  // GET
+  // =============================
+  ScoreInput? getScoreByStudent(int studentId) {
+    return scoreMap[studentId];
   }
 
 }
