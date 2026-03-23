@@ -1,3 +1,5 @@
+
+import 'package:dssstudentfe/pages/components/WSM_explain.dart';
 import 'package:dssstudentfe/pages/components/my_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -191,7 +193,12 @@ class _AhpReportPageState extends State<AhpReportPage> {
                ],
              ),
            ),
-         )
+         ),
+          const SizedBox(height: 20,),
+
+          WSMInfoPage()
+
+
         ],
       ),
     );

@@ -4,6 +4,7 @@ import 'package:dssstudentfe/ViewModels/score_viewmodel.dart';
 import 'package:dssstudentfe/ViewModels/student_viewmodel.dart';
 import 'package:dssstudentfe/pages/components/my_ahp_custom.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 
@@ -101,6 +102,7 @@ class _StudentEditPageState extends State<StudentEditPage> {
                           ),
                           onPressed: ()async{
                             await context.read<RiskViewModel>().calculateRisk(widget.student.id!);
+                            await context.read<RiskViewModel>().loadResults();
                           }, child: Text("Tính AHP",style: TextStyle(color: Colors.grey[200]),))
                     ],
                   )
@@ -178,14 +180,26 @@ class _StudentEditPageState extends State<StudentEditPage> {
                 ),
           
                 SizedBox(height: 25),
-                if(widget.student.listPer != null && widget.student.listPer!.isNotEmpty)...[
-                  MyAhpCustom(text: "Điểm kiểm tra: ${widget.student.listPer![0].testScore}"),
-                  const SizedBox(height: 10,),
-                  MyAhpCustom(text: "Chuyên cần: ${widget.student.listPer![0].attendance}%"),
-                  const SizedBox(height: 10,),
-                  MyAhpCustom(text: "Giờ học/ngày: ${widget.student.listPer![0].studyHours}"),
-                  const SizedBox(height: 10,),
-                ],
+                Consumer<ScoreViewModel>(
+                  builder: (context, scoreVm, _) {
+                    final score = scoreVm.getScoreByStudent(widget.student.id!);
+
+                    if (score == null) {
+                      return Text("Chưa có dữ liệu");
+                    }
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        MyAhpCustom(text: "Điểm kiểm tra: ${score.testScore}"),
+                        SizedBox(height: 10),
+                        MyAhpCustom(text: "Chuyên cần: ${score.attendance}%"),
+                        SizedBox(height: 10),
+                        MyAhpCustom(text: "Giờ học/ngày: ${score.studyHours}"),
+                      ],
+                    );
+                  },
+                ),
 
                 Divider(),
                 Consumer<RiskViewModel>(
@@ -202,8 +216,8 @@ class _StudentEditPageState extends State<StudentEditPage> {
 
                     Color color = Colors.green;
 
-                    if(risk.riskLevel == "High") color = Colors.red;
-                    if(risk.riskLevel == "Medium") color = Colors.orange;
+                    if(risk.riskLevel == "High Risk") color = Colors.red;
+                    if(risk.riskLevel == "Medium Risk") color = Colors.orange;
 
                     return Container(
                       width: double.infinity,
@@ -263,11 +277,7 @@ class _StudentEditPageState extends State<StudentEditPage> {
                           vertical: 14,
                         ),
                       ),
-          
                       onPressed: () async {
-          
-          
-          
                         Navigator.pop(context);
                       },
           
@@ -299,9 +309,14 @@ class _StudentEditPageState extends State<StudentEditPage> {
     );
   }
   void  showScoreDialog(BuildContext context, {required int? studentId}){
-    TextEditingController testScore=TextEditingController();
-    TextEditingController attendance = TextEditingController();
-    TextEditingController studyHours = TextEditingController();
+    final scoreVm=context.read<ScoreViewModel>();
+    final oldScore=scoreVm.getScoreByStudent(studentId!);
+    TextEditingController testScore =
+    TextEditingController(text: oldScore?.testScore.toString() ?? "");
+    TextEditingController attendance =
+    TextEditingController(text: oldScore?.attendance.toString() ?? "");
+    TextEditingController studyHours =
+    TextEditingController(text: oldScore?.studyHours.toString() ?? "");
     showDialog(context: context,
         builder: (context){
           return AlertDialog(
@@ -312,22 +327,31 @@ class _StudentEditPageState extends State<StudentEditPage> {
                 TextField(
                   controller: testScore,
                   keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,1}'))
+                  ],
                   decoration: InputDecoration(
-                    labelText: "Điểm kiểm tra",
+                    labelText: "Điểm kiểm tra (0-10)",
                   ),
                 ),
                 TextField(
                   controller: attendance,
                   keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
                   decoration: InputDecoration(
-                    labelText: "Chuyên cần (%)",
+                    labelText: "Chuyên cần (%)(0-100)",
                   ),
                 ),
                 TextField(
                   controller: studyHours,
                   keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly
+                  ],
                   decoration: InputDecoration(
-                    labelText: "Giờ học mỗi ngày",
+                    labelText: "Giờ học/ngày (0-24)",
                   ),
                 ),
               ],
@@ -336,22 +360,52 @@ class _StudentEditPageState extends State<StudentEditPage> {
               TextButton(onPressed: (){
                 Navigator.pop(context);
               }, child: Text("Hủy")),
-              ElevatedButton(onPressed:()async{
-                double score = double.parse(testScore.text);
-                int attend = int.parse(attendance.text);
-                int hours = int.parse(studyHours.text);
+              ElevatedButton(
+                  onPressed:()async{
+                    if (testScore.text.isEmpty ||
+                        attendance.text.isEmpty ||
+                        studyHours.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Vui lòng nhập đầy đủ dữ liệu")),
+                      );
+                      return;
+                    }
+                double score = double.parse(testScore.text)??-1;
+                int attend = int.parse(attendance.text)??-1;
+                int hours = int.parse(studyHours.text)??-1;
+                    if (score < 0 || score > 10) {
+                      showError("Điểm phải từ 0 - 10");
+                      return;
+                    }
 
+                    if (attend < 0 || attend > 100) {
+                      showError("Chuyên cần phải từ 0 - 100%");
+                      return;
+                    }
+
+                    if (hours < 0 || hours > 24) {
+                      showError("Giờ học phải từ 0 - 24");
+                      return;
+                    }
                 await context.read<ScoreViewModel>().submitScore(
                   studentId!,
                   score,
                   attend,
                   hours,
                 );
-
+                await context.read<ScoreViewModel>().loadScores();
+                await context.read<RiskViewModel>().loadResults();
                 Navigator.pop(context);
+                setState(() {
+                });
               }, child: Text("Lưu"))
             ],
           );
         });
+  }
+  void showError(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg)),
+    );
   }
 }

@@ -25,7 +25,6 @@ void main() {
       ChangeNotifierProvider(
         create: (_) => RiskViewModel(),
       ),
-
     ],
     child: MyApp(),
   ));
@@ -46,7 +45,7 @@ class MyApp extends StatelessWidget {
     },
       title: 'DSS Cảnh Báo Sớm',
       debugShowCheckedModeBanner: false,
-      home: AhpCriteriaPage(),
+      home: DashboardPage(),
     );
   }
 }

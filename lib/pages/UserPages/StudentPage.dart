@@ -34,7 +34,6 @@ class _StudentPageState extends State<StudentPage> {
   @override
   Widget build(BuildContext context) {
     bool isUpdate=false;
-
     return Consumer<StudentViewModel>(
         builder: (context, vm, child) {
 
@@ -171,11 +170,10 @@ class _StudentPageState extends State<StudentPage> {
                             DataColumn(label: Text("Email")),
                             DataColumn(label: Text("Test")),
                             DataColumn(label: Text("Attendance")),
-                            DataColumn(label: Text("Study")),
+                            DataColumn(label: Text("Study hour")),
                             DataColumn(label: Text("Mức rủi ro")),
                             DataColumn(label: Text("Thao tác")),
                           ],
-
                           rows: displayList.map((s){
 
                             return DataRow(
@@ -211,15 +209,19 @@ class _StudentPageState extends State<StudentPage> {
                                   Consumer<ScoreViewModel>(
                                     builder: (context, scoreVm, _) {
                                       final score = scoreVm.getScoreByStudent(s.id!);
+                                      print("Student ID: ${s.id}, Score: $score");
                                       return Text(score?.attendance.toString() ?? "-");
+
                                     },
+
                                   ),
+
                                 ),
                                 DataCell(
                                   Consumer<ScoreViewModel>(
                                     builder: (context, scoreVm, _) {
                                       final score = scoreVm.getScoreByStudent(s.id!);
-                                      return Text(score?.attendance.toString() ?? "-");
+                                      return Text(score?.studyHours.toString() ?? "-");
                                     },
                                   ),
                                 ),
@@ -231,13 +233,10 @@ class _StudentPageState extends State<StudentPage> {
                                       final risk = riskVm.getRiskByStudent(s.id!);
 
                                       String level = risk?.riskLevel ?? "Chưa tính";
-
                                       Color color = Colors.grey;
-
                                       if(level == "High Risk") color = Colors.red;
                                       if(level == "Medium Risk") color = Colors.orange;
                                       if(level == "Low Risk") color = Colors.green;
-
                                       return Container(
                                         padding: EdgeInsets.symmetric(horizontal:10, vertical:4),
                                         decoration: BoxDecoration(
@@ -261,7 +260,12 @@ class _StudentPageState extends State<StudentPage> {
                                       IconButton(
                                         icon: Icon(Icons.edit),
                                         onPressed: () {
-                                          Navigator.push(context, MaterialPageRoute(builder: (context)=>StudentEditPage(student: s)));
+                                          Navigator.push(context, MaterialPageRoute(builder: (context)=>StudentEditPage(student: s)))
+                                          .then((_)async{
+                                            await context.read<StudentViewModel>().loadStudents();
+                                            await context.read<ScoreViewModel>().loadScores();
+                                            await context.read<RiskViewModel>().loadResults();
+                                          });
                                         },
                                       ),
                                       IconButton(

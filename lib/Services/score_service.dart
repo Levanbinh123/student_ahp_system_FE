@@ -3,12 +3,12 @@ import 'package:http/http.dart' as http;
 import '../Models/ScoreInput.dart';
 
 class ScoreService {
-
+  final String baseUrl = "http://localhost:5045/api/performance";
   Future submitScore(ScoreInput score) async {
 
     var response = await http.post(
 
-        Uri.parse("http://localhost:5045/api/performance"),
+        Uri.parse(baseUrl),
 
         headers: {
           "Content-Type":"application/json"
@@ -23,7 +23,7 @@ class ScoreService {
   }
   Future<List<ScoreInput>> getScores() async {
     final res = await http.get(
-      Uri.parse("http://localhost:5045api/performance"),
+      Uri.parse(baseUrl),
     );
 
     if (res.statusCode == 200) {
@@ -36,7 +36,7 @@ class ScoreService {
 
   Future<ScoreInput?> getScoreByStudent(int studentId) async {
     final res = await http.get(
-      Uri.parse("http://localhost:5045/api/performance/$studentId"),
+      Uri.parse("$baseUrl/$studentId"),
     );
 
     if (res.statusCode == 200) {
